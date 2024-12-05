@@ -1,0 +1,93 @@
+## Overview
+This document describes a system architecture designed to provide configurable services to multiple partners, each serving different types of end-users. Partners operate in isolated user spaces with customizable functionality and permissions. The system also incorporates user state transitions and associated limitations.
+
+---
+
+## Architecture Components
+
+### 1. **Core Modules**
+- **Partner Management Service**: This service configures partner-specific settings, including accessible services, permissions, and user roles.
+- **User Management Service**: Handles user registration, authentication, role transitions, and session management.
+- **KYC Service**: Verifies user identity, enabling status transitions (e.g., "guest" → "basic").
+- **Limits and Policies Engine**: Enforces session and operation limits based on user roles and system rules.
+- **Operation Tracking Service**: Tracks user actions to ensure compliance with defined limits and policies.
+
+### 2. **Data Storage**
+- **Partner Configuration Database**: Stores partner-specific settings, including functionality access and user role definitions.
+- **User Data Repository**: Manages user profiles, role states, and KYC status.
+- **Operational Logs**: Maintains logs of user activities for limit enforcement and auditing.
+
+### 3. **API Gateway**
+It provides a unified interface for partners and users to access system services and implements authentication, authorization, and request routing.
+
+### 4. **Session Manager**
+Manages user sessions, including time tracking, idle state handling, and session termination.
+
+### 5. **Role Transition Logic**
+Implements state transitions for user roles, based on predefined rules:
+- "guest" → "basic" → "advanced"
+- "advanced" → "basic" → "guest"
+- "company" ↔ "advanced"
+
+---
+
+## Key Features
+
+### Partner Isolation
+- User sets for different partners are strictly segregated.
+- Functionalities and permissions are individually configurable per partner.
+
+### User Roles
+- **guest**: Limited to 20-minute sessions, 5 daily operations, and 20 operations in 7 days. Exceeds these limits → transitions to "idle".
+- **basic**: Extended limits to 20 daily operations and 50 in 7 days.
+- **company** and **advanced**: No operational or session limits.
+
+### Transition Rules
+- Status transitions depend on user actions and partner-specific configurations.
+
+---
+
+## System Diagram
+
+```mermaid
+graph TD
+  A[API Gateway] --> B[Partner Management Service]
+  A --> C[User Management Service]
+  A --> D[Limits and Policies Engine]
+  C --> E[Session Manager]
+  C --> F[KYC Service]
+  D --> G[Operation Tracking Service]
+  G --> H[User Data Repository]
+  B --> I[Partner Configuration Database]
+  H --> F
+```
+
+---
+
+## Transition Table
+
+| Current Status | Allowed Transition To | Conditions                                                   |
+|----------------|-----------------------|-------------------------------------------------------------|
+| guest          | basic                | Completion of KYC procedure                                 |
+| basic          | advanced             | Partner-specific criteria                                   |
+| advanced       | basic                | Partner-specific criteria or user downgrade                |
+| basic          | guest                | Partner-specific criteria or user downgrade                |
+| company        | advanced             | Partner-specific criteria                                   |
+| advanced       | company              | Partner-specific criteria                                   |
+
+---
+
+## Limit Policies
+
+| Role      | Session Duration | Daily Operations | Weekly Operations | Idle State Conditions |
+|-----------|------------------|------------------|--------------------|------------------------|
+| guest     | 20 minutes       | 5                | 20                 | Exceeding limits       |
+| basic     | Unlimited        | 20               | 50                 | Not applicable         |
+| advanced  | Unlimited        | Unlimited        | Unlimited          | Not applicable         |
+| company   | Unlimited        | Unlimited        | Unlimited          | Not applicable         |
+
+---
+
+## Conclusion
+The described architecture ensures flexibility and scalability for managing multiple partners with isolated user spaces, configurable functionalities, and robust user management. This design supports seamless integration, effective policy enforcement, and adaptability to changing requirements.
+
