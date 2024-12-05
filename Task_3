@@ -1,0 +1,5 @@
+Plans offer product clients a variety of service options defined within a preconfigured scope.
+
+Please note that shortly after the feature implementation, your customer service flow and solutions may require adjustments due to an extensive system update. Specifically, user records are now supplemented with additional properties, as outlined in the latest version of our API reference. For example, users may be moved to an 'idle' state before confirming the purchase of a plan.
+
+The number of plans per provider is unlimited, allowing you to create as many as necessary and customize them to meet your specific needs. However, plans merely reflect well-defined user attributes that align fully with the corresponding state logic.
