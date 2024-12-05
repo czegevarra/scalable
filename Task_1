@@ -1,3 +1,5 @@
+# System Architecture Document
+
 ## Overview
 This document describes a system architecture designed to provide configurable services to multiple partners, each serving different types of end-users. Partners operate in isolated user spaces with customizable functionality and permissions. The system also incorporates user state transitions and associated limitations.
 
