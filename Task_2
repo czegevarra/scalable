@@ -1,0 +1,186 @@
+openapi: 3.0.0
+info:
+  title: Service Plan API
+  description: API for managing user service plans and associated operations.
+  version: 1.0.0
+
+servers:
+  - url: https://{host}/api
+    description: Production server
+    variables:
+      host:
+        default: example.com
+
+paths:
+  /external/user:
+    get:
+      summary: Retrieve user information
+      parameters:
+        - name: user_id
+          in: query
+          description: The ID of the user
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Maximum number of records to return
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                  sub_status:
+                    type: string
+                    enum:
+                      - signed
+                      - unsigned
+                      - absent
+                  type:
+                    type: string
+        '400':
+          description: Bad request
+
+  /partner:
+    get:
+      summary: Retrieve partner information
+      parameters:
+        - name: provider_id
+          in: query
+          description: The ID of the partner provider
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider_id:
+                    type: integer
+                  plans:
+                    type: array
+                    items:
+                      type: string
+        '401':
+          description: Unauthorized access
+
+  /plans:
+    get:
+      summary: Retrieve available plans
+      parameters:
+        - name: type
+          in: query
+          description: User types (comma-separated)
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of records to return
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plans:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        type:
+                          type: string
+                        available:
+                          type: boolean
+
+    post:
+      summary: Create a new plan
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                available:
+                  type: boolean
+      responses:
+        '201':
+          description: Plan created successfully
+
+    put:
+      summary: Update an existing plan
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                type:
+                  type: string
+                available:
+                  type: boolean
+      responses:
+        '200':
+          description: Plan updated successfully
+
+    delete:
+      summary: Delete an existing plan
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: query
+          description: ID of the plan to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Plan deleted successfully
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
